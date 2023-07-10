@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(UserDto userDto) throws BadRequestException, NotFoundException{
+    public UserDto create(UserDto userDto) throws BadRequestException, NotFoundException {
         throwIfEmailExist(userDto);
         throwIfNotValid(userDto);
         return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
