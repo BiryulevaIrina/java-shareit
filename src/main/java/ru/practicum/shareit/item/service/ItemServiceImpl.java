@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class ItemServiceImpl implements ItemService {
     ItemStorage itemStorage;
-
     UserStorage userStorage;
 
     @Autowired

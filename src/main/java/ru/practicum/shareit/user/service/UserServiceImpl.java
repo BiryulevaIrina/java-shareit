@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+
 public class UserServiceImpl implements UserService {
     public UserStorage userStorage;
 
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto create(UserDto userDto) {
+    public UserDto create(UserDto userDto) throws BadRequestException, NotFoundException{
         throwIfEmailExist(userDto);
         throwIfNotValid(userDto);
         return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void throwIfNotValid(UserDto userDto) {
-        if (userDto.getEmail().isBlank() || (!userDto.getEmail().contains("@"))) {
+        if (userDto.getEmail() == null || userDto.getEmail().isBlank() || (!userDto.getEmail().contains("@"))) {
             throw new BadRequestException("Электронная почта не может быть пустой и должна содержать символ @");
         }
         if (userDto.getName().isBlank() || userDto.getName().contains(" ")) {

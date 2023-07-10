@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -27,7 +28,8 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createNewUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto createNewUser(@RequestBody UserDto userDto) {
+        log.info("Получен запрос на добавление пользователя");
         return userService.create(userDto);
     }
 
