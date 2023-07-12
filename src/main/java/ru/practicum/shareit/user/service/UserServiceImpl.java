@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-
 public class UserServiceImpl implements UserService {
     public UserStorage userStorage;
 
@@ -52,8 +51,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long userId) {
-        return UserMapper.toUserDto(userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId + " нет в базе.")));
+        return userStorage.findById(userId)
+                .map(UserMapper::toUserDto)
+                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId + " нет в базе."));
     }
 
     @Override

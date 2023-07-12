@@ -14,9 +14,6 @@ import ru.practicum.shareit.user.storage.UserStorage;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-import static java.util.stream.Collectors.toList;
-
 @Service
 public class ItemServiceImpl implements ItemService {
     ItemStorage itemStorage;
@@ -30,13 +27,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItems(Long userId) {
-        userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе."));
-        return itemStorage.findAll().stream()
-                .filter(item -> item.getOwner().getId().equals(userId))
+        return itemStorage.findAll(userId).stream()
                 .map(ItemMapper::toItemDto)
-                .collect(toList());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -45,7 +38,6 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
                         + " нет в базе."));
         throwIfNotValid(itemDto);
-        throwIfNotAvailable(itemDto);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         return ItemMapper.toItemDto(itemStorage.create(item));
@@ -67,23 +59,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        return ItemMapper.toItemDto(itemStorage.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с идентификатором " + itemId
-                        + " отсутствует в базе.")));
+        return itemStorage.findById(itemId)
+                .map(ItemMapper::toItemDto)
+                .orElseThrow(() -> new NotFoundException("Не найдена вещь с идентификатором " + itemId));
     }
 
     @Override
-    public List<ItemDto> getItemsByText(String text) {
-        if (!text.isBlank()) {
-            String finalText = text.toLowerCase();
-            return itemStorage.findAll().stream()
-                    .map(ItemMapper::toItemDto)
-                    .filter(ItemDto::getAvailable)
-                    .filter(itemDto -> itemDto.getName().toLowerCase().contains(finalText) ||
-                            itemDto.getDescription().toLowerCase().contains(finalText))
-                    .collect(Collectors.toList());
-        }
-        return List.of();
+    public List<ItemDto> searchItem(String text) {
+        return itemStorage.searchItem(text);
     }
 
     private void throwIfNotValid(ItemDto itemDto) {
@@ -93,9 +76,6 @@ public class ItemServiceImpl implements ItemService {
         if ((itemDto.getDescription() == null) || itemDto.getDescription().isBlank()) {
             throw new BadRequestException("Описание вещи не может быть пустым");
         }
-    }
-
-    private void throwIfNotAvailable(ItemDto itemDto) {
         if (itemDto.getAvailable() == null) {
             throw new BadRequestException("Статус доступности вещи должен быть установлен");
         }

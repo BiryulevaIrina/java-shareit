@@ -2,9 +2,12 @@ package ru.practicum.shareit.item.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -13,9 +16,12 @@ public class InMemoryItemStorage implements ItemStorage {
     private Long id = 0L;
 
     @Override
-    public List<Item> findAll() {
-        log.debug("Текущее количество вещей  - {}: ", items.size());
-        return new ArrayList<>(items.values());
+    public List<Item> findAll(Long userId) {
+        List<Item> itemsList = items.values().stream()
+                .filter(item -> item.getOwner().getId().equals(userId))
+                .collect(Collectors.toList());
+        log.debug("Текущее количество вещей пользователя с id {} - {}: ", userId, items.size());
+        return itemsList;
     }
 
     @Override
@@ -45,5 +51,19 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public Optional<Item> findById(Long id) {
         return Optional.ofNullable(items.get(id));
+    }
+
+    @Override
+    public List<ItemDto> searchItem(String text) {
+        if (!text.isBlank()) {
+            String finalText = text.toLowerCase();
+            return items.values().stream()
+                    .map(ItemMapper::toItemDto)
+                    .filter(ItemDto::getAvailable)
+                    .filter(itemDto -> itemDto.getName().toLowerCase().contains(finalText) ||
+                            itemDto.getDescription().toLowerCase().contains(finalText))
+                    .collect(Collectors.toList());
+        }
+        return List.of();
     }
 }

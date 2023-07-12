@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -34,8 +33,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
-                          @RequestBody ItemDto itemDto)
-            throws ConflictException {
+                          @RequestBody ItemDto itemDto) {
         log.info("Получен PUT-запрос на обновление вещи");
         return itemService.update(userId, itemId, itemDto);
     }
@@ -47,8 +45,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                    @RequestParam(value = "text") String text) {
-        return itemService.getItemsByText(text);
+    public List<ItemDto> searchItem(@RequestParam(value = "text") String text) {
+        log.info("Получен GET-запрос на поиск вещи по тексту {}", text);
+        return itemService.searchItem(text);
     }
 }
