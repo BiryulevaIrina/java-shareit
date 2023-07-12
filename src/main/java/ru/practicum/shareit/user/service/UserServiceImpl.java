@@ -58,8 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto delete(Long userId) {
-        UserDto userDto = UserMapper.toUserDto(userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId + " нет в базе.")));
+        UserDto userDto = getUserById(userId);
         userStorage.delete(userId);
         return userDto;
     }

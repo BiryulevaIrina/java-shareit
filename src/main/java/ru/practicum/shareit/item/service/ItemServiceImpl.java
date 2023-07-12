@@ -45,9 +45,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-        userStorage.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе."));
         getItemById(itemId);
         Item item1 = getItem(userId, itemId);
         if (!item1.getOwner().getId().equals(userId)) {
