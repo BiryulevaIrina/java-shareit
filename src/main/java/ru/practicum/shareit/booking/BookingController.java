@@ -22,14 +22,14 @@ public class BookingController {
 
     @PostMapping
     public BookingDto createNewBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestBody BookingSaveDto bookingDto) {
+                                       @RequestBody BookingSaveDto bookingDto) {
         log.info("Получен запрос на бронирование пользователем с ID={}", userId);
         return bookingService.create(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto updateStatus(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId,
-                                @RequestParam(value = "approved") Boolean approved) {
+                                   @RequestParam(value = "approved") Boolean approved) {
         log.info("Получен PUT-запрос на подтверждение или отклонение запроса на бронирование вещи");
         return bookingService.update(userId, bookingId, approved);
     }
@@ -43,16 +43,16 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                     @RequestParam(value = "state", defaultValue = "ALL",
-                                             required = false) String state) {
+                                        @RequestParam(value = "state", defaultValue = "ALL",
+                                                required = false) String state) {
         log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
         return bookingService.getBookings(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @RequestParam(value = "state", defaultValue = "ALL",
-                                                  required = false) String state) {
+                                             @RequestParam(value = "state", defaultValue = "ALL",
+                                                     required = false) String state) {
         log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
         return bookingService.getOwnerBookings(userId, state);
     }

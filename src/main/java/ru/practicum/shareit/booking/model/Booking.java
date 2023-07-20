@@ -35,9 +35,6 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public Booking(LocalDateTime start, LocalDateTime end, Item item, User user, Status status) {
-
-    }
 }
 
 

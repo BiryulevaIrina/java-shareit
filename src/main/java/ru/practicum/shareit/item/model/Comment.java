@@ -28,6 +28,8 @@ public class Comment {
     private LocalDateTime created;
 
     public Comment(long id, String text, LocalDateTime created) {
-
+        this.id = id;
+        this.text = text;
+        this.created = created;
     }
 }

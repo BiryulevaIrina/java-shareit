@@ -10,15 +10,13 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 
-import javax.validation.constraints.NotNull;
-
 @Component
 @AllArgsConstructor
 public class BookingMapper {
     private ItemRepository itemRepository;
     private UserRepository userRepository;
 
-    public BookingDto toBookingDto(@NotNull Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
         return new BookingDto(
                 booking.getId(),
                 booking.getStart(),
@@ -26,15 +24,6 @@ public class BookingMapper {
                 ItemMapper.toItemDto(booking.getItem()),
                 UserMapper.toUserDto(booking.getBooker()),
                 booking.getStatus()
-        );
-    }
-
-    public BookingTimeDto toBookingTimeDto(@NotNull Booking booking) {
-        return new BookingTimeDto(
-                booking.getId(),
-                booking.getBooker().getId(),
-                booking.getStart(),
-                booking.getEnd()
         );
     }
 

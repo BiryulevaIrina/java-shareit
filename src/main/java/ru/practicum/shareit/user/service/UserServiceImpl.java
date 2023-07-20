@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ConflictException;
@@ -15,13 +15,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public List<UserDto> getUsers() {
@@ -46,7 +42,7 @@ public class UserServiceImpl implements UserService {
         } else {
             throwIfEmailExist(userDto);
             User user = userRepository.findById(userId)
-                    .orElseThrow(()-> new NotFoundException("Пользователя с идентификатором " + userId
+                    .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
                             + " нет в базе."));
             if (userDto.getName() != null) {
                 user.setName(userDto.getName());
@@ -84,6 +80,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Логин не может быть пустым и содержать пробелы");
         }
     }
+
     private void throwIfEmailExist(UserDto userDto) {
         if (getUsers().stream().anyMatch(u -> u.getEmail().equals(userDto.getEmail()))) {
             throw new ConflictException("Е-mail " + userDto.getEmail() + " уже существует");
