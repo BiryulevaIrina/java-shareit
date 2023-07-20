@@ -30,7 +30,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto create(Long userId, BookingSaveDto bookingDto) {
-        Booking booking = bookingMapper.maptoNewBooking(bookingDto, userId);
+        Booking booking = bookingMapper
+                .maptoNewBooking(bookingDto, userId);
         Item item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь с ID = "
                         + bookingDto.getItemId()));
@@ -110,8 +111,8 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return bookings.stream().
-                map(bookingMapper::toBookingDto)
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -144,8 +145,8 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return bookings.stream().
-                map(bookingMapper::toBookingDto)
+        return bookings.stream()
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
