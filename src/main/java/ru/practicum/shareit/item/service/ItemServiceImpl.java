@@ -145,27 +145,26 @@ public class ItemServiceImpl implements ItemService {
             itemBookingDto.setLastBooking(ItemMapper.toBookingDateDto(new Booking()));
             itemBookingDto.setNextBooking(ItemMapper.toBookingDateDto(new Booking()));
         } else {
+            Booking last = bookings.get(0);
+            Booking next = bookings.get(bookings.size() - 1);
             if (bookings.size() == 1) {
-                Booking booking = bookings.get(0);
-                itemBookingDto.setLastBooking(ItemMapper.toBookingDateDto(booking));
+                itemBookingDto.setLastBooking(ItemMapper.toBookingDateDto(last));
                 itemBookingDto.setNextBooking(ItemMapper.toBookingDateDto(new Booking()));
             } else {
-                Booking min = bookings.get(0);
-                Booking max = bookings.get(bookings.size() - 1);
                 for (Booking booking : bookings) {
                     if (booking.getEnd().isBefore(LocalDateTime.now())) {
-                        if (booking.getEnd().isAfter(min.getEnd())) {
-                            min = booking;
+                        if (booking.getEnd().isAfter(last.getEnd())) {
+                            last = booking;
                         }
                     }
                     if (booking.getStart().isAfter(LocalDateTime.now())) {
-                        if (booking.getEnd().isBefore(max.getEnd())) {
-                            max = booking;
+                        if (booking.getEnd().isBefore(next.getEnd())) {
+                            next = booking;
                         }
                     }
                 }
-                itemBookingDto.setLastBooking(ItemMapper.toBookingDateDto(min));
-                itemBookingDto.setNextBooking(ItemMapper.toBookingDateDto(max));
+                itemBookingDto.setLastBooking(ItemMapper.toBookingDateDto(last));
+                itemBookingDto.setNextBooking(ItemMapper.toBookingDateDto(next));
             }
         }
         itemBookingDto.setComments(getCommentsByItemId(item.getId()));
