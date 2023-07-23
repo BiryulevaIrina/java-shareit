@@ -30,16 +30,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemBookingDto> getItems(Long userId) {
-        List<ItemBookingDto> itemBookingDto;
-        List<Item> itemList = itemRepository.findByOwnerId(userId);
-        if (itemList.isEmpty()) {
+        List<Item> items = itemRepository.findByOwnerId(userId);
+        if (items.isEmpty()) {
             throw new NotFoundException("У пользователя не найдена такая вещь.");
         }
-        itemBookingDto = itemList
-                .stream()
+        return items.stream()
                 .map(item -> mapToItemBookingDto(item, userId, item.getId()))
                 .collect(Collectors.toList());
-        return itemBookingDto;
     }
 
     @Override
@@ -74,19 +71,19 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemBookingDto getItemById(Long itemId, Long userId) {
-        Item item = itemRepository.findById(itemId)
+        return itemRepository.findById(itemId)
+                .map((Item item) -> mapToItemBookingDto(item, userId, itemId))
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь с идентификатором " + itemId));
-        return mapToItemBookingDto(item, userId, itemId);
     }
 
     @Override
     public List<ItemDto> searchItem(String text) {
-        if (!text.isBlank()) {
-            return itemRepository.searchItem(text).stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
+        if (text.isBlank()) {
+            return List.of();
         }
-        return List.of();
+        return itemRepository.searchItem(text).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override

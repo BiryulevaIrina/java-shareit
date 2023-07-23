@@ -26,12 +26,10 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final BookingMapper bookingMapper;
 
     @Override
     public BookingDto create(Long userId, BookingSaveDto bookingDto) {
-        Booking booking = bookingMapper
-                .maptoNewBooking(bookingDto, userId);
+        Booking booking = mapToNewBooking(bookingDto, userId);
         Item item = itemRepository.findById(booking.getItem().getId())
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь с ID = "
                         + bookingDto.getItemId()));
@@ -49,7 +47,7 @@ public class BookingServiceImpl implements BookingService {
                 bookingDto.getStart().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Некорректное введение времени бронирования.");
         }
-        return bookingMapper.toBookingDto(bookingRepository.save(booking));
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -62,12 +60,8 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getStatus().equals(Status.APPROVED)) {
             throw new BadRequestException("Статус бронирования вещи уже установлен APPROVED");
         }
-        if (approved) {
-            booking.setStatus(Status.APPROVED);
-        } else {
-            booking.setStatus(Status.REJECTED);
-        }
-        return bookingMapper.toBookingDto(bookingRepository.save(booking));
+        booking.setStatus(!approved ? Status.REJECTED : Status.APPROVED);
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -79,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователь с ID = " + userId + " не имеет доступа "
                     + "к просмотру данных о бронировании вещи с ID = " + bookingId);
         }
-        return bookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDto(booking);
     }
 
     @Override
@@ -112,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
         return bookings.stream()
-                .map(bookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -146,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
         }
         return bookings.stream()
-                .map(bookingMapper::toBookingDto)
+                .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -161,6 +155,20 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Не найдено бронирование с ID "
                         + bookingId));
+    }
+
+    private Booking mapToNewBooking(BookingSaveDto bookingSaveDto, Long bookerId) {
+        Booking booking = new Booking();
+        booking.setStart(bookingSaveDto.getStart());
+        booking.setEnd(bookingSaveDto.getEnd());
+        booking.setItem(itemRepository.findById(bookingSaveDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("Вещи с ID " + bookingSaveDto.getItemId()
+                        + " нет в базе.")));
+        booking.setBooker(userRepository.findById(bookerId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с ID " + bookerId
+                        + " нет в базе.")));
+        booking.setStatus(Status.WAITING);
+        return booking;
     }
 
 }
