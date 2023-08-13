@@ -21,9 +21,11 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<ItemBookingDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemBookingDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @RequestParam(defaultValue = "0") int from,
+                                         @RequestParam(defaultValue = "10") int size) {
         log.info("Получен запрос на просмотр владельцем с ID={} текущего списка своих вещей", userId);
-        return itemService.getItems(userId);
+        return itemService.getItems(from, size, userId);
     }
 
     @PostMapping
@@ -47,9 +49,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam(value = "text") String text) {
+    public List<ItemDto> searchItem(@RequestParam(value = "text") String text,
+                                    @RequestParam(defaultValue = "0") int from,
+                                    @RequestParam(defaultValue = "10") int size) {
         log.info("Получен GET-запрос на поиск вещи по тексту {}", text);
-        return itemService.searchItem(text);
+        return itemService.searchItem(from, size, text);
     }
 
     @PostMapping("/{itemId}/comment")

@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -12,8 +14,8 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public BookingDto create(Long userId, BookingSaveDto bookingDto) {
@@ -70,37 +72,41 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getBooking(bookingId);
         if (!Objects.equals(booking.getBooker().getId(), userId) &&
                 !Objects.equals(booking.getItem().getOwner().getId(), userId)) {
-            throw new NotFoundException("Пользователь с ID = " + userId + " не имеет доступа "
+            throw new NotFoundException("Пользователь с ID = {}" + userId + " не имеет доступа "
                     + "к просмотру данных о бронировании вещи с ID = " + bookingId);
         }
         return BookingMapper.toBookingDto(booking);
     }
 
     @Override
-    public List<BookingDto> getBookings(Long userId, String state) {
+    public List<BookingDto> getBookings(int from, int size, Long userId, String state) {
         getUser(userId);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
+        Pageable pageable = PageRequest.of(from / size, size);
         List<Booking> bookings;
         switch (state) {
             case "ALL":
-                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageable);
                 break;
             case "CURRENT":
                 bookings = bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now(), LocalDateTime.now());
+                        LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
             case "PAST":
                 bookings = bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageable);
                 break;
             case "FUTURE":
                 bookings = bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageable);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING, pageable);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, pageable);
                 break;
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -111,30 +117,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getOwnerBookings(Long userId, String state) {
+    public List<BookingDto> getOwnerBookings(int from, int size, Long userId, String state) {
         getUser(userId);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
+        Pageable pageable = PageRequest.of(from / size, size);
         List<Booking> bookings;
         switch (state) {
             case "ALL":
-                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId, pageable);
                 break;
             case "CURRENT":
                 bookings = bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now(), LocalDateTime.now());
+                        LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
             case "PAST":
                 bookings = bookingRepository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageable);
                 break;
             case "FUTURE":
                 bookings = bookingRepository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageable);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                        Status.WAITING, pageable);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userId,
+                        Status.REJECTED, pageable);
                 break;
             default:
                 throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -145,10 +157,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void getUser(Long userId) {
-        userRepository.findById(userId)
-                .map(UserMapper::toUserDto)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе."));
+        userService.getUserById(userId);
     }
 
     private Booking getBooking(Long bookingId) {
@@ -164,9 +173,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(itemRepository.findById(bookingSaveDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Вещи с ID " + bookingSaveDto.getItemId()
                         + " нет в базе.")));
-        booking.setBooker(userRepository.findById(bookerId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с ID " + bookerId
-                        + " нет в базе.")));
+        booking.setBooker(UserMapper.toUser(userService.getUserById(bookerId)));
         booking.setStatus(Status.WAITING);
         return booking;
     }
