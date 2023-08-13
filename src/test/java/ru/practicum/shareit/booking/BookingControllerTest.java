@@ -30,22 +30,16 @@ public class BookingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private Long userId;
-    private Long itemId;
-    private Long bookingId;
-    private User user;
-    private Item item;
     private Booking booking;
 
     @BeforeEach
     void setUp() {
-        userId = 1L;
-        itemId = 1L;
-        bookingId = 1L;
-        item = new Item();
+        Long userId = 1L;
+        Long itemId = 1L;
+        long bookingId = 1L;
+        Item item = new Item();
         item.setId(itemId);
-        user = new User(userId, "user", "user@email.ru");
+        User user = new User(userId, "user", "user@email.ru");
         booking = new Booking(bookingId, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1),
                 item, user, Status.WAITING);
     }

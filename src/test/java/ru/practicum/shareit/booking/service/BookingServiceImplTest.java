@@ -100,7 +100,7 @@ public class BookingServiceImplTest {
         assertThrows(NotFoundException.class, () -> bookingService.create(1L, bookingSaveDto));
         assertThrows(BadRequestException.class, () -> bookingService.create(2L, booking1));
 
-        final var thrown = assertThrows(BadRequestException.class,
+        Throwable thrown = assertThrows(BadRequestException.class,
                 () -> bookingService.create(2L, booking2));
         assertEquals("Некорректное введение времени бронирования.", thrown.getMessage());
     }
@@ -145,9 +145,7 @@ public class BookingServiceImplTest {
         when(userService.getUserById(any(Long.class))).thenReturn(userDto);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
 
-        Throwable thrown = catchThrowable(() -> {
-            bookingService.getById(2L, bookingId);
-        });
+        Throwable thrown = catchThrowable(() -> bookingService.getById(2L, bookingId));
         assertThat(thrown).isInstanceOf(NotFoundException.class);
         assertThat(thrown.getMessage()).isNotBlank();
         assertEquals("Пользователь с ID = {}" + 2L + " не имеет доступа "

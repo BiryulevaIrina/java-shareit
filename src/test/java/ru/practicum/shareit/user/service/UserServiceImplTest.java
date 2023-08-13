@@ -65,9 +65,7 @@ public class UserServiceImplTest {
     @Test
     public void createUserNullNameTest() {
         UserDto userDto = new UserDto(1L, "", "user1@email.ru");
-        Throwable thrown = catchThrowable(() -> {
-            userService.create(userDto);
-        });
+        Throwable thrown = catchThrowable(() -> userService.create(userDto));
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
         assertEquals("Логин не может быть пустым и содержать пробелы", thrown.getMessage());
@@ -76,9 +74,7 @@ public class UserServiceImplTest {
     @Test
     public void createUserEmailNotValidTest1() {
         UserDto userDto = new UserDto(1L, "user", "useremail.ru");
-        Throwable thrown = catchThrowable(() -> {
-            userService.create(userDto);
-        });
+        Throwable thrown = catchThrowable(() -> userService.create(userDto));
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", thrown.getMessage());
@@ -87,9 +83,7 @@ public class UserServiceImplTest {
     @Test
     public void createUserEmailNotValidTest2() {
         UserDto userDto = new UserDto(1L, "user", " ");
-        Throwable thrown = catchThrowable(() -> {
-            userService.create(userDto);
-        });
+        Throwable thrown = catchThrowable(() -> userService.create(userDto));
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", thrown.getMessage());

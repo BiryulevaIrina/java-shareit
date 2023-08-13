@@ -144,9 +144,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto(1L, null, "item description",
                 true, 1L, 1L);
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.create(1L, itemDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.create(1L, itemDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -158,9 +156,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto(1L, " ", "item description",
                 true, 1L, 1L);
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.create(1L, itemDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.create(1L, itemDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -172,9 +168,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto(1L, "item", null,
                 true, 1L, 1L);
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.create(1L, itemDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.create(1L, itemDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -186,9 +180,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto(1L, "item", " ",
                 true, 1L, 1L);
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.create(1L, itemDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.create(1L, itemDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -200,9 +192,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto(1L, "item", "item description",
                 null, 1L, 1L);
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.create(1L, itemDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.create(1L, itemDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -270,9 +260,7 @@ public class ItemServiceImplTest {
         when(bookingRepository.findAllByItemIdAndBookerIdAndStatus(any(Long.class), any(Long.class), any(Status.class)))
                 .thenReturn(List.of(booking));
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.createComment(1L, 1L, commentDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.createComment(1L, 1L, commentDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
@@ -285,9 +273,7 @@ public class ItemServiceImplTest {
         when(bookingRepository.findAllByItemIdAndBookerIdAndStatus(any(Long.class), any(Long.class), any(Status.class)))
                 .thenReturn(List.of(booking));
 
-        Throwable thrown = catchThrowable(() -> {
-            itemService.createComment(1L, 1L, commentDto);
-        });
+        Throwable thrown = catchThrowable(() -> itemService.createComment(1L, 1L, commentDto));
 
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();

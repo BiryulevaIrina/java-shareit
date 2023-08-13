@@ -113,9 +113,7 @@ public class ItemRequestServiceImplTest {
     @Test
     public void createItemRequestsNullNameTest() {
         ItemRequestSaveDto itemRequestSaveDto1 = new ItemRequestSaveDto(1L, " ");
-        Throwable thrown = catchThrowable(() -> {
-            itemRequestService.create(1L, itemRequestSaveDto1);
-        });
+        Throwable thrown = catchThrowable(() -> itemRequestService.create(1L, itemRequestSaveDto1));
         assertThat(thrown).isInstanceOf(BadRequestException.class);
         assertThat(thrown.getMessage()).isNotBlank();
         assertEquals("Отзыв не может быть пустым", thrown.getMessage());
