@@ -102,6 +102,7 @@ public class UserServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> userService.update(userDto, 2L));
         verify(userRepository, times(1)).save(user);
+
     }
 
     @Test
