@@ -192,5 +192,3 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 }
- /*  return bookingRepository.findAllByItemIdAndBookerIdAndEndIsBeforeAndStatus(itemId,
-                userId, LocalDateTime.now(), Status.APPROVED);*/

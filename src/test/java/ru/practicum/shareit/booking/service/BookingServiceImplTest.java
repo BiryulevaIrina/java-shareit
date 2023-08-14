@@ -141,7 +141,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getByIdIfUserIsNotBookerAndNotOwner() {
+    void getByIdIfUserIsNotBookerAndNotOwnerTest() {
         when(userService.getUserById(any(Long.class))).thenReturn(userDto);
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
 
@@ -153,7 +153,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getBookings() {
+    void getBookingsTest() {
         Pageable pageable = PageRequest.of(1, 1);
         when(userService.getUserById(userDto.getId())).thenReturn(userDto);
         when(bookingRepository.findByBookerIdOrderByStartDesc(userDto.getId(), pageable))
@@ -175,12 +175,67 @@ public class BookingServiceImplTest {
         assertEquals(user.getName(), bookingDto.getBooker().getName());
         assertEquals(user.getEmail(), bookingDto.getBooker().getEmail());
 
+        when(bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(new Booking(1L, LocalDateTime.now().minusDays(1),
+                        LocalDateTime.now().plusDays(1), item, user, Status.REJECTED)));
+
+        List<BookingDto> bookingDtos1
+                = bookingService.getBookings(from, size, userDto.getId(), "CURRENT");
+
+        assertNotNull(bookingDtos1);
+        assertEquals(1, bookingDtos1.size());
+
+        when(bookingRepository.findByBookerIdAndEndIsBeforeOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(new Booking(1L,
+                LocalDateTime.now().minusDays(3), LocalDateTime.now().minusDays(1), item, user, Status.WAITING)));
+
+        List<BookingDto> bookingDtos2
+                = bookingService.getBookings(from, size, userDto.getId(), "PAST");
+
+        assertNotNull(bookingDtos2);
+        assertEquals(1, bookingDtos2.size());
+
+        when(bookingRepository.findByBookerIdAndStartIsAfterOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(new Booking(1L,
+                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(3), item, user, Status.WAITING)));
+
+        List<BookingDto> bookingDtos3
+                = bookingService.getBookings(from, size, userDto.getId(), "FUTURE");
+
+        assertNotNull(bookingDtos3);
+        assertEquals(1, bookingDtos3.size());
+
+        when(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userDto.getId(), Status.WAITING, pageable))
+                .thenReturn(List.of(booking));
+
+        List<BookingDto> bookingDtos4
+                = bookingService.getBookings(from, size, userDto.getId(), "WAITING");
+
+        assertNotNull(bookingDtos4);
+        assertEquals(1, bookingDtos4.size());
+
+        when(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userDto.getId(), Status.REJECTED, pageable))
+                .thenReturn(List.of(booking));
+
+        List<BookingDto> bookingDtos5
+                = bookingService.getBookings(from, size, userDto.getId(), "REJECTED");
+
+        assertNotNull(bookingDtos5);
+        assertEquals(1, bookingDtos5.size());
+
         assertThrows(BadRequestException.class,
                 () -> bookingService.getBookings(from, size, userDto.getId(), "ALLL"));
+
+        assertThrows(BadRequestException.class,
+                () -> bookingService.getBookings(-1, size, userDto.getId(), "ALL"));
+
+        assertThrows(BadRequestException.class,
+                () -> bookingService.getBookings(from, -1, userDto.getId(), "ALL"));
     }
 
     @Test
-    void getOwnerBookings() {
+    void getOwnerBookingsTest() {
         Pageable pageable = PageRequest.of(1, 1);
         when(userService.getUserById(any(Long.class))).thenReturn(userDto);
         when(bookingRepository.findByItemOwnerIdOrderByStartDesc(userDto.getId(), pageable))
@@ -201,8 +256,63 @@ public class BookingServiceImplTest {
         assertEquals(user.getName(), bookingDto.getBooker().getName());
         assertEquals(user.getEmail(), bookingDto.getBooker().getEmail());
 
+        when(bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(List.of(new Booking(1L, LocalDateTime.now().minusDays(1),
+                        LocalDateTime.now().plusDays(1), item, user, Status.REJECTED)));
+
+        List<BookingDto> bookingDtos1
+                = bookingService.getOwnerBookings(from, size, userDto.getId(), "CURRENT");
+
+        assertNotNull(bookingDtos1);
+        assertEquals(1, bookingDtos1.size());
+
+        when(bookingRepository.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(new Booking(1L,
+                LocalDateTime.now().minusDays(3), LocalDateTime.now().minusDays(1), item, user, Status.WAITING)));
+
+        List<BookingDto> bookingDtos2
+                = bookingService.getOwnerBookings(from, size, userDto.getId(), "PAST");
+
+        assertNotNull(bookingDtos2);
+        assertEquals(1, bookingDtos2.size());
+
+        when(bookingRepository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(new Booking(1L,
+                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(3), item, user, Status.WAITING)));
+
+        List<BookingDto> bookingDtos3
+                = bookingService.getOwnerBookings(from, size, userDto.getId(), "FUTURE");
+
+        assertNotNull(bookingDtos3);
+        assertEquals(1, bookingDtos3.size());
+
+        when(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userDto.getId(), Status.WAITING, pageable))
+                .thenReturn(List.of(booking));
+
+        List<BookingDto> bookingDtos4
+                = bookingService.getOwnerBookings(from, size, userDto.getId(), "WAITING");
+
+        assertNotNull(bookingDtos4);
+        assertEquals(1, bookingDtos4.size());
+
+        when(bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(userDto.getId(), Status.REJECTED, pageable))
+                .thenReturn(List.of(booking));
+
+        List<BookingDto> bookingDtos5
+                = bookingService.getOwnerBookings(from, size, userDto.getId(), "REJECTED");
+
+        assertNotNull(bookingDtos5);
+        assertEquals(1, bookingDtos5.size());
+
         assertThrows(BadRequestException.class,
                 () -> bookingService.getOwnerBookings(from, size, userDto.getId(), "ALLL"));
+
+        assertThrows(BadRequestException.class,
+                () -> bookingService.getOwnerBookings(-1, size, userDto.getId(), "ALL"));
+
+        assertThrows(BadRequestException.class,
+                () -> bookingService.getOwnerBookings(from, -1, userDto.getId(), "ALL"));
 
     }
 }
