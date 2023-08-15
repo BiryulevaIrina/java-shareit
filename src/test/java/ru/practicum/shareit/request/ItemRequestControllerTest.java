@@ -15,6 +15,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,7 +46,7 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequests() throws Exception {
+    void getItemRequestsTest() throws Exception {
         mockMvc.perform(get("/requests/all")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("from", "1")
@@ -54,6 +55,31 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk());
 
         verify(itemRequestService, Mockito.times(1)).getItemRequests(from, size, userId);
+
+    }
+
+    @Test
+    void getItemRequestsIfSizeNullTest() throws Exception {
+        mockMvc.perform(get("/requests/all")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("from", "1")
+                        .param("size", "0")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        verify(itemRequestService, never()).getItemRequests(from, 0, userId);
+    }
+
+    @Test
+    void getItemRequestsIfFromNotPositiveTest() throws Exception {
+        mockMvc.perform(get("/requests/all")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("from", "-1")
+                        .param("size", "1")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        verify(itemRequestService, never()).getItemRequests(-1, size, userId);
     }
 
     @Test

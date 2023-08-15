@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingSaveDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.BadRequestException;
 
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class BookingController {
                                         @RequestParam(defaultValue = "0") int from,
                                         @RequestParam(defaultValue = "10") int size) {
         log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
         return bookingService.getBookings(from, size, userId, state);
     }
 
@@ -58,6 +62,9 @@ public class BookingController {
                                              @RequestParam(defaultValue = "0") int from,
                                              @RequestParam(defaultValue = "10") int size) {
         log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
         return bookingService.getOwnerBookings(from, size, userId, state);
     }
 }

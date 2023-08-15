@@ -72,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getBooking(bookingId);
         if (!Objects.equals(booking.getBooker().getId(), userId) &&
                 !Objects.equals(booking.getItem().getOwner().getId(), userId)) {
-            throw new NotFoundException("Пользователь с ID = {}" + userId + " не имеет доступа "
+            throw new NotFoundException("Пользователь с ID = " + userId + " не имеет доступа "
                     + "к просмотру данных о бронировании вещи с ID = " + bookingId);
         }
         return BookingMapper.toBookingDto(booking);
@@ -81,9 +81,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookings(int from, int size, Long userId, String state) {
         getUser(userId);
-        if (from < 0 || size < 1) {
-            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
-        }
         Pageable pageable = PageRequest.of(from / size, size);
         List<Booking> bookings;
         switch (state) {
@@ -119,9 +116,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getOwnerBookings(int from, int size, Long userId, String state) {
         getUser(userId);
-        if (from < 0 || size < 1) {
-            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
-        }
         Pageable pageable = PageRequest.of(from / size, size);
         List<Booking> bookings;
         switch (state) {

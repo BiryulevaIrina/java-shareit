@@ -35,9 +35,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemBookingDto> getItems(int from, int size, Long userId) {
-        if (from < 0 || size < 1) {
-            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
-        }
         Pageable pageable = PageRequest.of(from / size, size);
         List<Item> items = itemRepository.findByOwnerId(userId, pageable);
         if (items.isEmpty()) {
@@ -88,9 +85,6 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchItem(int from, int size, String text) {
         if (text.isBlank()) {
             return List.of();
-        }
-        if (from < 0 || size < 1) {
-            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
         }
         Pageable pageable = PageRequest.of(from / size, size);
         return itemRepository.searchItem(text, pageable).stream()

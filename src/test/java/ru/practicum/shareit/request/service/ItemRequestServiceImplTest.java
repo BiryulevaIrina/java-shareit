@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -29,7 +27,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -69,13 +68,12 @@ public class ItemRequestServiceImplTest {
         User otherUser = new User(2L, "otherUser", "user@email.ru");
         Item otherItem = new Item(1L, "item", "item test", true, otherUser, itemRequest);
 
-        when(itemRequestRepository
-                .findAll(PageRequest.of(from / size, size)))
-                .thenReturn(new PageImpl<>(List.of(itemRequest)));
-        when(itemRepository
-                .findAll())
+        when(itemRequestRepository.findAllByRequesterIdNot(any(Long.class), any()))
                 .thenReturn(Collections
-                        .singletonList(otherItem));
+                        .singletonList(itemRequest));
+
+        when(itemRepository.findAllByRequestIsNotNull()).thenReturn(Collections
+                .singletonList(otherItem));
 
         List<ItemRequestWithResponsesDto> itemRequests = itemRequestService.getItemRequests(from, size, 2L);
 
@@ -93,8 +91,6 @@ public class ItemRequestServiceImplTest {
         assertNotNull(itemRequestWithResponsesDto.getItems());
         assertEquals(1, itemRequestWithResponsesDto.getItems().size());
 
-        size = 0;
-        assertThrows(BadRequestException.class, () -> itemRequestService.getItemRequests(from, size, 2L));
     }
 
     @Test

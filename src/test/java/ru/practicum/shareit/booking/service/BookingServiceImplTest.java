@@ -148,7 +148,7 @@ public class BookingServiceImplTest {
         Throwable thrown = catchThrowable(() -> bookingService.getById(2L, bookingId));
         assertThat(thrown).isInstanceOf(NotFoundException.class);
         assertThat(thrown.getMessage()).isNotBlank();
-        assertEquals("Пользователь с ID = {}" + 2L + " не имеет доступа "
+        assertEquals("Пользователь с ID = " + 2L + " не имеет доступа "
                 + "к просмотру данных о бронировании вещи с ID = " + bookingId, thrown.getMessage());
     }
 
@@ -226,12 +226,6 @@ public class BookingServiceImplTest {
 
         assertThrows(BadRequestException.class,
                 () -> bookingService.getBookings(from, size, userDto.getId(), "ALLL"));
-
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getBookings(-1, size, userDto.getId(), "ALL"));
-
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getBookings(from, -1, userDto.getId(), "ALL"));
     }
 
     @Test
@@ -307,12 +301,6 @@ public class BookingServiceImplTest {
 
         assertThrows(BadRequestException.class,
                 () -> bookingService.getOwnerBookings(from, size, userDto.getId(), "ALLL"));
-
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getOwnerBookings(-1, size, userDto.getId(), "ALL"));
-
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getOwnerBookings(from, -1, userDto.getId(), "ALL"));
 
     }
 }

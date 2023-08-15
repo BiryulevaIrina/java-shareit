@@ -112,8 +112,6 @@ public class ItemServiceImplTest {
         assertNotNull(itemDto.getNextBooking());
 
         assertThrows(NotFoundException.class, () -> itemService.getItems(from, size, 2L));
-        assertThrows(BadRequestException.class, () -> itemService.getItems(-1, size, 2L));
-        assertThrows(BadRequestException.class, () -> itemService.getItems(from, -1, 2L));
     }
 
     @Test
@@ -234,12 +232,6 @@ public class ItemServiceImplTest {
     @Test
     void searchItemTest() {
         assertEquals(itemService.searchItem(from, size, ""), List.of());
-
-        assertThrows(BadRequestException.class,
-                () -> itemService.searchItem(-1, size, "text"));
-
-        assertThrows(BadRequestException.class,
-                () -> itemService.searchItem(from, -1, "text"));
 
     }
 

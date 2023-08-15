@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,27 +32,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestWithResponsesDto> getItemRequests(int from, int size, Long userId) {
         userService.getUserById(userId);
-        if (from < 0 || size < 1) {
-            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
-        }
         Pageable pageable = PageRequest.of(from / size, size);
 
         List<ItemRequest> itemRequests = itemRequestRepository
-                .findAll(pageable)
-                .stream()
-                .filter(itemRequest -> !Objects.equals(itemRequest.getRequester().getId(), userId))
-                .collect(Collectors.toList());
+                .findAllByRequesterIdNot(userId, pageable);
         List<ItemDto> itemDtos = itemRepository
-                .findAll()
+                .findAllByRequestIsNotNull()
                 .stream()
-                .filter(item -> item.getRequest() != null)
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
         List<ItemRequestWithResponsesDto> requestsWithResponsesDtos = new ArrayList<>();
-        itemRequests.stream().map(ItemRequestMapper::toItemRequestsWithResponsesDto).forEach(itemRequestWithResponsesDto -> {
-            itemRequestWithResponsesDto.setItems(itemDtos);
-            requestsWithResponsesDtos.add(itemRequestWithResponsesDto);
-        });
+        itemRequests.stream().map(ItemRequestMapper::toItemRequestsWithResponsesDto)
+                .forEach(itemRequestWithResponsesDto -> {
+                    itemRequestWithResponsesDto.setItems(itemDtos);
+                    requestsWithResponsesDtos.add(itemRequestWithResponsesDto);
+                });
         return requestsWithResponsesDtos;
     }
 

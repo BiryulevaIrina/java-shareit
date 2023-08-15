@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -25,6 +26,9 @@ public class ItemController {
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size) {
         log.info("Получен запрос на просмотр владельцем с ID={} текущего списка своих вещей", userId);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
         return itemService.getItems(from, size, userId);
     }
 
@@ -53,6 +57,9 @@ public class ItemController {
                                     @RequestParam(defaultValue = "0") int from,
                                     @RequestParam(defaultValue = "10") int size) {
         log.info("Получен GET-запрос на поиск вещи по тексту {}", text);
+        if (from < 0 || size < 1) {
+            throw new BadRequestException("Неправильно введен запрос (должно быть from >= 0, size > 0)");
+        }
         return itemService.searchItem(from, size, text);
     }
 

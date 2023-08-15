@@ -25,8 +25,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -78,6 +77,34 @@ public class ItemControllerTest {
     }
 
     @Test
+    void getItemsIfSizeNullTest() throws Exception {
+        when(itemService.getItems(1, 0, user.getId())).thenReturn(Collections.singletonList(itemBookingDto));
+
+        mockMvc.perform(get("/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", "1")
+                        .param("from", "1")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).getItems(from, 0, user.getId());
+    }
+
+    @Test
+    void getItemsIfFromIsNotPositiveTest() throws Exception {
+        when(itemService.getItems(-1, 1, user.getId())).thenReturn(Collections.singletonList(itemBookingDto));
+
+        mockMvc.perform(get("/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", "1")
+                        .param("from", "-1")
+                        .param("size", "1"))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, never()).getItems(-1, size, user.getId());
+    }
+
+    @Test
     void createNewItemTest() throws Exception {
         when(itemService.create(1L, itemDto)).thenReturn(itemDto);
 
@@ -121,14 +148,39 @@ public class ItemControllerTest {
     }
 
     @Test
-    void searchItem() throws Exception {
+    void searchItemTest() throws Exception {
         when(itemService.searchItem(from, size, text)).thenReturn(Collections.singletonList(itemDto));
 
         mockMvc.perform(get("/items/search?text=test")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1"))
+                        .header("X-Sharer-User-Id", "1")
+                        .param("from", "1")
+                        .param("size", "1"))
                 .andExpect(status().isOk());
+    }
 
+    @Test
+    void searchItemIfSizeNullTest() throws Exception {
+        when(itemService.searchItem(from, 0, text)).thenReturn(Collections.singletonList(itemDto));
+
+        mockMvc.perform(get("/items/search?text=test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", "1")
+                        .param("from", "1")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void searchItemIfFromIsNotPositiveTest() throws Exception {
+        when(itemService.searchItem(-1, size, text)).thenReturn(Collections.singletonList(itemDto));
+
+        mockMvc.perform(get("/items/search?text=test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", "1")
+                        .param("from", "-1")
+                        .param("size", "1"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
