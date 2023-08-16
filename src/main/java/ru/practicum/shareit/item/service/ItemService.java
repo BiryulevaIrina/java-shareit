@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<ItemBookingDto> getItems(Long userId);
+    List<ItemBookingDto> getItems(int from, int size, Long userId);
 
     ItemDto create(Long userId, ItemDto itemDto);
 
@@ -16,9 +16,8 @@ public interface ItemService {
 
     ItemBookingDto getItemById(Long itemId, Long userId);
 
-    List<ItemDto> searchItem(String text);
+    List<ItemDto> searchItem(int from, int size, String text);
 
     CommentDto createComment(Long userId, Long itemId, CommentDto commentDto);
 
-    List<CommentDto> getCommentsByItemId(Long itemId);
 }

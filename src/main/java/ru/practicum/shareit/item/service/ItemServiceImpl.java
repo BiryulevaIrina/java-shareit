@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,8 +14,10 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,13 +28,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public List<ItemBookingDto> getItems(Long userId) {
-        List<Item> items = itemRepository.findByOwnerId(userId);
+    public List<ItemBookingDto> getItems(int from, int size, Long userId) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Item> items = itemRepository.findByOwnerId(userId, pageable);
         if (items.isEmpty()) {
             throw new NotFoundException("У пользователя не найдена такая вещь.");
         }
@@ -42,11 +48,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         throwIfNotValid(itemDto);
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе."));
+        User owner = UserMapper.toUser(userService.getUserById(userId));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
+        setRequest(item, itemDto);
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
@@ -77,11 +82,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
+    public List<ItemDto> searchItem(int from, int size, String text) {
         if (text.isBlank()) {
             return List.of();
         }
-        return itemRepository.searchItem(text).stream()
+        Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.searchItem(text, pageable).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -90,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
         if (getBookings(userId, itemId).isEmpty()) {
             throw new BadRequestException("Пользователь с ID = " + userId + " вещь с ID = "
-                    + itemId + "не бронировал");
+                    + itemId + " не бронировал");
         }
         if (commentDto.getText() == null || commentDto.getText().isBlank()) {
             throw new BadRequestException("Текст комментария не может быть пустым");
@@ -99,24 +105,19 @@ public class ItemServiceImpl implements ItemService {
         comment.setId(comment.getId());
         comment.setText(comment.getText());
         comment.setItem(getItem(userId, itemId));
-        comment.setAuthor(userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе.")));
+        comment.setAuthor(UserMapper.toUser(userService.getUserById(userId)));
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    @Override
-    public List<CommentDto> getCommentsByItemId(Long itemId) {
+    private List<CommentDto> getCommentsByItemId(Long itemId) {
         return commentRepository.findAllByItemId(itemId).stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList());
     }
 
     private Item getItem(Long userId, Long itemId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователя с идентификатором " + userId
-                        + " нет в базе."));
+        userService.getUserById(userId);
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с идентификатором " + itemId
                         + " отсутствует в базе."));
@@ -169,7 +170,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private List<Booking> getBookings(Long userId, Long itemId) {
-        return bookingRepository.findAllByItemIdAndBookerIdAndEndIsBeforeAndStatus(itemId,
-                userId, LocalDateTime.now(), Status.APPROVED);
+        return bookingRepository.findAllByItemIdAndBookerIdAndStatus(itemId, userId, Status.APPROVED)
+                .stream()
+                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+    }
+
+    private void setRequest(Item item, ItemDto itemDto) {
+        if (itemDto.getRequestId() == null) {
+            item.setRequest(null);
+        } else {
+            item.setRequest(itemRequestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с идентификатором " + itemDto.getRequestId()
+                            + " не найден.")));
+        }
     }
 }
