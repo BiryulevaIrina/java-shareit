@@ -94,7 +94,7 @@ public class ItemServiceImplTest {
         Pageable pageable = PageRequest.of(from / size, size);
         Item item = new Item(1L, "item", "item test", true, user, null);
 
-        when(itemRepository.findByOwnerId(1L, pageable)).thenReturn(Collections.singletonList(item));
+        when(itemRepository.findByOwnerIdOrderByIdAsc(1L, pageable)).thenReturn(Collections.singletonList(item));
         when(bookingRepository.findAllByItemIdAndStatusOrderByEndAsc(1L, Status.APPROVED))
                 .thenReturn(List.of(lastBooking, nextBooking));
 

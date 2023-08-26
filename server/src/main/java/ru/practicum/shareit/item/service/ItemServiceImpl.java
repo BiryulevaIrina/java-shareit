@@ -36,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemBookingDto> getItems(int from, int size, Long userId) {
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Item> items = itemRepository.findByOwnerId(userId, pageable);
+        List<Item> items = itemRepository.findByOwnerIdOrderByIdAsc(userId, pageable);
         if (items.isEmpty()) {
             throw new NotFoundException("У пользователя не найдена такая вещь.");
         }

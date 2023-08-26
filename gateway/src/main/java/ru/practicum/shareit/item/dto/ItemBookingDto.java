@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ItemBookingDto {
-    private long id;
+    private Long id;
     @NotNull
     @NotBlank
     private String name;

@@ -42,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable()) {
             throw new BadRequestException("Вещь не доступна для бронирования.");
         }
-       if (bookingDto.getStart() == null || bookingDto.getEnd() == null ||
+        if (bookingDto.getStart() == null || bookingDto.getEnd() == null ||
                 bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
                 bookingDto.getStart().equals(bookingDto.getEnd()) ||
                 bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
