@@ -122,28 +122,6 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getBookingsIfSizeNullTest() throws Exception {
-        mockMvc.perform(get("/bookings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "1")
-                        .param("size", "0")
-                        .param("state", "ALL"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getBookingsIfFromIsNotPositiveTest() throws Exception {
-        mockMvc.perform(get("/bookings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "-1")
-                        .param("size", "1")
-                        .param("state", "ALL"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getOwnerBookingsTest() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -194,25 +172,4 @@ public class BookingControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void getOwnerBookingsIfSizeNullTest() throws Exception {
-        mockMvc.perform(get("/bookings/owner")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "1")
-                        .param("size", "0")
-                        .param("state", "ALL"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getOwnerBookingsIfFromIsNotPositiveTest() throws Exception {
-        mockMvc.perform(get("/bookings/owner")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .param("from", "-1")
-                        .param("size", "1")
-                        .param("state", "ALL"))
-                .andExpect(status().isBadRequest());
-    }
 }

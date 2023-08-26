@@ -31,7 +31,7 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                @PathVariable Long bookingId,
-                                               @RequestParam(value = "approved") Boolean approved) {
+                                               @RequestParam Boolean approved) {
         log.info("Получен PUT-запрос на подтверждение или отклонение запроса на бронирование вещи");
         return bookingClient.update(userId, bookingId, approved);
     }
