@@ -23,7 +23,7 @@ public class BookingController {
     @PostMapping
     public BookingDto createNewBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @RequestBody BookingSaveDto bookingDto) {
-        log.info("Получен запрос на бронирование пользователем с ID={}", userId);
+        log.info("Получен POST-запрос на бронирование пользователем с ID={}", userId);
         return bookingService.create(userId, bookingDto);
     }
 
@@ -31,13 +31,14 @@ public class BookingController {
     public BookingDto updateStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                    @PathVariable Long bookingId,
                                    @RequestParam Boolean approved) {
-        log.info("Получен Patch-запрос на подтверждение или отклонение запроса на бронирование вещи");
+        log.info("Получен PATCH-запрос пользователя с ID={} на подтверждение или отклонение запроса " +
+                "на бронирование вещи владельцем с ID={}", bookingId, userId);
         return bookingService.update(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId) {
-        log.info("Получен GET-запрос на получение данных о конкретном бронировании с ID={} пользователем с ID={}",
+        log.info("Получен GET-запрос на получение данных о бронировании с ID={} пользователем с ID={}",
                 bookingId, userId);
         return bookingService.getById(userId, bookingId);
     }
@@ -48,7 +49,8 @@ public class BookingController {
                                                 required = false) String state,
                                         @RequestParam(defaultValue = "0") int from,
                                         @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
+        log.info("Получен GET-запрос на получение списка всех бронирований пользователя при state {}, userId={}, " +
+                "from={}, size={}", state, userId, from, size);
         return bookingService.getBookings(from, size, userId, state);
     }
 
@@ -58,7 +60,8 @@ public class BookingController {
                                                      required = false) String state,
                                              @RequestParam(defaultValue = "0") int from,
                                              @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
+        log.info("Получен GET-запрос на получение списка всех бронирований пользователя (владельца)" +
+                " при state {}, userId={}, from={}, size={}", state, userId, from, size);
         return bookingService.getOwnerBookings(from, size, userId, state);
     }
 }

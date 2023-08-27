@@ -24,7 +24,8 @@ public class ItemRequestController {
     public ResponseEntity<Object> getItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                   @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                                   @Positive @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен GET-запрос пользователя с ID={} на просмотр текущего списка запросов", userId);
+        log.info("Получен GET-запрос пользователя с ID={} на просмотр текущего списка запросов, from={}, size={}",
+                userId, from, size);
         return itemRequestClient.getItemRequests(from, size, userId);
     }
 

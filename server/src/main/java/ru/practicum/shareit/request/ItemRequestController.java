@@ -25,7 +25,8 @@ public class ItemRequestController {
     public List<ItemRequestWithResponsesDto> getItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                              @RequestParam(defaultValue = "0") int from,
                                                              @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен GET-запрос пользователя с ID={} на просмотр текущего списка запросов", userId);
+        log.info("Получен GET-запрос пользователя с ID={} на просмотр текущего списка запросов, from={}, size={}",
+                userId, from, size);
         return itemRequestService.getItemRequests(from, size, userId);
     }
 

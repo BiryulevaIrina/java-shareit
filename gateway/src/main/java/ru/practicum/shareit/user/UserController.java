@@ -22,7 +22,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> createNewUser(@Valid @RequestBody UserDto userDto) {
-        log.info("Получен запрос на добавление пользователя");
+        log.info("Получен POST-запрос на добавление пользователя");
         return userClient.create(userDto);
     }
 

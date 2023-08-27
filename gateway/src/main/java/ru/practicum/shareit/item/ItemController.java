@@ -25,21 +25,22 @@ public class ItemController {
     public ResponseEntity<Object> getItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                            @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                            @Positive @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен запрос на просмотр владельцем с ID={} текущего списка своих вещей", userId);
+        log.info("Получен GET-запрос на просмотр владельцем с ID={} текущего списка своих вещей, from={}, size={}",
+                userId, from, size);
         return itemClient.getItems(from, size, userId);
     }
 
     @PostMapping
     public ResponseEntity<Object> createNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @Valid @RequestBody ItemDto itemDto) {
-        log.info("Получен запрос на добавление вещи владельцем с ID={}", userId);
+        log.info("Получен POST-запрос на добавление вещи владельцем с ID={}", userId);
         return itemClient.create(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                                          @RequestBody ItemDto itemDto) {
-        log.info("Получен PUT-запрос на обновление вещи");
+        log.info("Получен PATCH-запрос на обновление вещи с ID={} пользователя с ID={}", itemId, userId);
         return itemClient.update(userId, itemId, itemDto);
     }
 
@@ -55,14 +56,14 @@ public class ItemController {
                                              @RequestParam(value = "text") String text,
                                              @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                              @Positive @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен GET-запрос на поиск вещи по тексту {}", text);
+        log.info("Получен GET-запрос на поиск вещи по тексту {}, from={}, size={}", text, from, size);
         return itemClient.searchItem(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> createNewComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                                                    @RequestBody CommentDto commentDto) {
-        log.info("Получен POST-запрос на добавление отзыва пользователем с ID={}", userId);
+        log.info("Получен POST-запрос на добавление отзыва пользователем с ID={} о вещи с ID={} ", userId, itemId);
         return itemClient.createComment(userId, itemId, commentDto);
     }
 }

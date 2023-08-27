@@ -26,14 +26,14 @@ public class UserController {
 
     @PostMapping
     public UserDto createNewUser(@RequestBody UserDto userDto) {
-        log.info("Получен запрос на добавление пользователя");
+        log.info("Получен POST-запрос на добавление пользователя");
         return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")
     public UserDto update(@PathVariable("id") Long id, @RequestBody UserDto userDto)
             throws ConflictException {
-        log.info("Получен PUT-запрос на обновление пользователя");
+        log.info("Получен PATCH-запрос на обновление пользователя с ID={}", id);
         return userService.update(userDto, id);
     }
 

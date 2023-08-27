@@ -24,21 +24,22 @@ public class ItemController {
     public List<ItemBookingDto> getItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен запрос на просмотр владельцем с ID={} текущего списка своих вещей", userId);
+        log.info("Получен GET-запрос на просмотр владельцем с ID={} текущего списка своих вещей, from={}, size={}",
+                userId, from, size);
         return itemService.getItems(from, size, userId);
     }
 
     @PostMapping
     public ItemDto createNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                  @RequestBody ItemDto itemDto) {
-        log.info("Получен запрос на добавление вещи владельцем с ID={}", userId);
+        log.info("Получен POST-запрос на добавление вещи владельцем с ID={}", userId);
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                           @RequestBody ItemDto itemDto) {
-        log.info("Получен PUT-запрос на обновление вещи");
+        log.info("Получен PATCH-запрос на обновление вещи с ID={} пользователя с ID={}", itemId, userId);
         return itemService.update(userId, itemId, itemDto);
     }
 
@@ -52,14 +53,14 @@ public class ItemController {
     public List<ItemDto> searchItem(@RequestParam(value = "text") String text,
                                     @RequestParam(defaultValue = "0") int from,
                                     @RequestParam(defaultValue = "10") int size) {
-        log.info("Получен GET-запрос на поиск вещи по тексту {}", text);
+        log.info("Получен GET-запрос на поиск вещи по тексту {}, from={}, size={}", text, from, size);
         return itemService.searchItem(from, size, text);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createNewComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                                        @RequestBody CommentDto commentDto) {
-        log.info("Получен POST-запрос на добавление отзыва пользователем с ID={}", userId);
+        log.info("Получен POST-запрос на добавление отзыва пользователем с ID={} о вещи с ID={} ", userId, itemId);
         return itemService.createComment(userId, itemId, commentDto);
     }
 }

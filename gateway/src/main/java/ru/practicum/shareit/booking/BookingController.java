@@ -24,7 +24,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> createNewBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @Valid @RequestBody BookingSaveDto bookingDto) {
-        log.info("Получен запрос на бронирование пользователем с ID={}", userId);
+        log.info("Получен POST-запрос на бронирование пользователем с ID={}", userId);
         return bookingClient.create(userId, bookingDto);
     }
 
@@ -32,14 +32,16 @@ public class BookingController {
     public ResponseEntity<Object> updateStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                @PathVariable Long bookingId,
                                                @RequestParam Boolean approved) {
-        log.info("Получен PUT-запрос на подтверждение или отклонение запроса на бронирование вещи");
+        log.info("Получен PATCH-запрос пользователя с ID={} на подтверждение или отклонение запроса " +
+                "на бронирование вещи владельцем с ID={}", bookingId, userId);
         return bookingClient.update(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                  @PathVariable Long bookingId) {
-        log.info("Get booking {}, userId={}", bookingId, userId);
+        log.info("Получен GET-запрос на получение данных о бронировании с ID={} пользователем с ID={}",
+                bookingId, userId);
         return bookingClient.getById(userId, bookingId);
     }
 
@@ -50,7 +52,8 @@ public class BookingController {
                                               @Positive @RequestParam(name = "size", defaultValue = "10") int size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-        log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
+        log.info("Получен GET-запрос на получение списка всех бронирований пользователя при state {}, userId={}, " +
+                "from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, state, from, size);
     }
 
@@ -63,7 +66,8 @@ public class BookingController {
                                                    int size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-        log.info("Получен запрос на получение списка всех бронирований пользователя с ID={}", userId);
+        log.info("Получен GET-запрос на получение списка всех бронирований пользователя (владельца)" +
+                " при state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getOwnerBookings(userId, state, from, size);
     }
 
