@@ -1,11 +1,11 @@
 logging:
-    level:
-        org:
-            springframework:
-                web:
-                    client:
-                        RestTemplate: DEBUG
+  level:
+    org:
+      springframework:
+        web:
+          client:
+            RestTemplate: DEBUG
 server:
-    port: 8080
+  port: 8080
 shareit-server:
-    url: http://localhost:9090
+  url: http://localhost:9090
