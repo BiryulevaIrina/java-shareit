@@ -1,0 +1,41 @@
+logging:
+  level:
+    org:
+      springframework:
+        orm:
+          jpa: INFO
+          jpa.JpaTransactionManager: DEBUG
+        transaction: INFO
+        transaction.interceptor: TRACE
+server:
+  port: 9090
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        format_sql: true
+  sql:
+    init:
+      mode: always
+---
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    password: root
+    url: jdbc:postgresql://localhost:5432/shareit
+    username: root
+  jpa:
+    show-sql: true
+---
+spring:
+  config:
+    activate:
+      on-profile: ci,test
+  datasource:
+    driverClassName: org.h2.Driver
+    password: test
+    url: jdbc:h2:mem:shareit
+    username: test
